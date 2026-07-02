@@ -99,7 +99,7 @@ internal class JsonSchemaJsonConverter<T> : JsonConverter<T>
 
             ReadOnlySpan<char> keywordName = keywordNameBuffer.Slice(0, keywordNameLength);
 
-            Type? keywordType = ValidationKeywordRegistry.GetKeyword(keywordName, deserializerContext.Dialect);
+            Type? keywordType = deserializerContext.GetKeyword(keywordName);
             reader.Read();
 
             if (keywordType is not null)

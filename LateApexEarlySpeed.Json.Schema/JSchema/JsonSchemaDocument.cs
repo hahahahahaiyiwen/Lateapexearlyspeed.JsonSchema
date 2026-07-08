@@ -8,7 +8,7 @@ internal static class JsonSchemaDocument
 {
     public static IJsonSchemaDocument CreateDocAndUpdateGlobalResourceRegistry(ReadOnlySpan<char> schema, SchemaResourceRegistry globalSchemaResourceRegistry, JsonValidatorOptions options)
     {
-        JsonSerializerOptions jsonSerializerOptions = new JsonSchemaDeserializerContext(options.PropertyNameCaseInsensitive, options.DefaultDialect, options.InternalKeywordRegistry).ToJsonSerializerOptions();
+        JsonSerializerOptions jsonSerializerOptions = new JsonSchemaDeserializerContext(options, options.DefaultDialect).ToJsonSerializerOptions();
 
         IJsonSchemaDocument doc = JsonSerializer.Deserialize<IJsonSchemaDocument>(schema, jsonSerializerOptions)!;
 
@@ -27,7 +27,7 @@ internal static class JsonSchemaDocument
 
     public static IJsonSchemaDocument CreateDocAndUpdateGlobalResourceRegistry(Stream utf8Schema, SchemaResourceRegistry globalSchemaResourceRegistry, JsonValidatorOptions options)
     {
-        JsonSerializerOptions jsonSerializerOptions = new JsonSchemaDeserializerContext(options.PropertyNameCaseInsensitive, options.DefaultDialect, options.InternalKeywordRegistry).ToJsonSerializerOptions();
+        JsonSerializerOptions jsonSerializerOptions = new JsonSchemaDeserializerContext(options, options.DefaultDialect).ToJsonSerializerOptions();
 
         IJsonSchemaDocument doc = JsonSerializer.Deserialize<IJsonSchemaDocument>(utf8Schema, jsonSerializerOptions)!;
 
@@ -46,7 +46,7 @@ internal static class JsonSchemaDocument
 
     public static IJsonSchemaDocument CreateDocAndUpdateGlobalResourceRegistry(JsonElement schema, SchemaResourceRegistry globalSchemaResourceRegistry, JsonValidatorOptions options)
     {
-        JsonSerializerOptions jsonSerializerOptions = new JsonSchemaDeserializerContext(options.PropertyNameCaseInsensitive, options.DefaultDialect, options.InternalKeywordRegistry).ToJsonSerializerOptions();
+        JsonSerializerOptions jsonSerializerOptions = new JsonSchemaDeserializerContext(options, options.DefaultDialect).ToJsonSerializerOptions();
 
         IJsonSchemaDocument doc = schema.Deserialize<IJsonSchemaDocument>(jsonSerializerOptions)!;
 

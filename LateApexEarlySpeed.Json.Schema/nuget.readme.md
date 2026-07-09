@@ -285,7 +285,7 @@ Besides of standard keywords defined in json schema specification, library suppo
 ```
 
 ```csharp
-ValidationKeywordRegistry.AddKeyword<CustomKeyword>();
+ValidationKeywordRegistry.Global.AddKeyword<CustomKeyword>();
 ```
 
 ```csharp
@@ -331,6 +331,19 @@ internal class CustomKeywordJsonConverter : JsonConverter<CustomKeyword>
     }
 }
 ```
+
+### Per-`JsonValidatorOptions` custom keyword
+
+Besides registering custom keywords in the process-wide `ValidationKeywordRegistry.Global`, you can also register them on a specific `JsonValidatorOptions` instance through its `KeywordRegistry`. Custom keywords registered this way are isolated to the `JsonValidator` instances created with that options instance, so different schemas can have their own independent custom keywords:
+
+```csharp
+var options = new JsonValidatorOptions();
+options.KeywordRegistry.AddKeyword<CustomKeyword>();
+
+var validator = new JsonValidator(schema, options);
+```
+
+A keyword implementation is resolved per keyword name and dialect. The per-`JsonValidatorOptions` level `KeywordRegistry` takes higher precedence than `ValidationKeywordRegistry.Global`: the global registry is only consulted when the per-options registry has no implementation registered for that keyword name and dialect (even if the same keyword name is registered there for other dialects).
 
 ## Format support
 

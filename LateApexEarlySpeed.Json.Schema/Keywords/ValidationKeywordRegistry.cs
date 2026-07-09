@@ -169,7 +169,7 @@ public class ValidationKeywordRegistry
     /// Global level <see cref="ValidationKeywordRegistry"/> instance that registers and retrieves validation keywords.
     /// </summary>
     /// <remarks>
-    /// This global level <see cref="ValidationKeywordRegistry"/> instance takes lower precedence than per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/> when resolving keyword implementation on same keyword name.
+    /// A keyword implementation is resolved per keyword name and dialect. This global level <see cref="ValidationKeywordRegistry"/> instance takes lower precedence than the per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/>: it is only consulted when the per-options registry has no implementation registered for that specific keyword name and dialect (even if the same keyword name is registered there for other dialects).
     /// </remarks>
     public static ValidationKeywordRegistry Global { get; } = new(100, true);
 

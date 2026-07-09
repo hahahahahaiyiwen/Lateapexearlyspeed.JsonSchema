@@ -40,7 +40,7 @@ public class JsonValidatorOptions
     /// Gets the <see cref="ValidationKeywordRegistry"/> instance that registers and retrieves validation keywords.
     /// </summary>
     /// <remarks>
-    /// This per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/> takes higher precedence than <see cref="ValidationKeywordRegistry.Global"/> when resolving keyword implementation on same keyword name.
+    /// A keyword implementation is resolved per keyword name and dialect. This per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/> takes higher precedence than <see cref="ValidationKeywordRegistry.Global"/>: the global registry is only consulted when this registry has no implementation registered for that specific keyword name and dialect (even if the same keyword name is registered here for other dialects).
     /// </remarks>
     public ValidationKeywordRegistry KeywordRegistry
     {

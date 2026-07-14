@@ -27,9 +27,9 @@ internal ref struct JsonSchemaDeserializerContext
     private static readonly JsonSerializerOptions[] JsonSerializerOptionsCache;
 
     /// <summary>
-/// The validator options associated with this deserialization context.
-/// Provides access to property-name comparison settings and option-level keyword resolution.
-/// </summary>
+    /// The validator options associated with this deserialization context.
+    /// Provides access to property-name comparison settings and keyword resolution.
+    /// </summary>
     private readonly JsonValidatorOptions _jsonValidatorOptions;
 
     public DialectKind Dialect;
@@ -72,7 +72,7 @@ internal ref struct JsonSchemaDeserializerContext
 
     public Type? GetKeyword(scoped ReadOnlySpan<char> keywordName)
     {
-        return _jsonValidatorOptions.InternalKeywordRegistry?.GetKeyword(keywordName, Dialect) ?? ValidationKeywordRegistry.Global.GetKeyword(keywordName, Dialect);
+        return _jsonValidatorOptions.InternalKeywordRegistry?.GetKeyword(keywordName, Dialect) ?? _jsonValidatorOptions.GlobalKeywordRegistry.GetKeyword(keywordName, Dialect);
     }
 }
 

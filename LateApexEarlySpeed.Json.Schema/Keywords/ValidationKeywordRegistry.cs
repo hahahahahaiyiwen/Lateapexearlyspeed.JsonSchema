@@ -171,7 +171,9 @@ public class ValidationKeywordRegistry
     /// <remarks>
     /// A keyword implementation is resolved per keyword name and dialect. This global level <see cref="ValidationKeywordRegistry"/> instance takes lower precedence than the per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/>: it is only consulted when the per-options registry has no implementation registered for that specific keyword name and dialect (even if the same keyword name is registered there for other dialects).
     /// </remarks>
-    public static ValidationKeywordRegistry Global { get; } = new(100, true);
+    public static ValidationKeywordRegistry Global { get; } = CreateDefaultRegistry();
+
+    internal static ValidationKeywordRegistry CreateDefaultRegistry() => new(100, true);
 
     internal ValidationKeywordRegistry(int capacity, bool withBuiltInKeywords)
     {

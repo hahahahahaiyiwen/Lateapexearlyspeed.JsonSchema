@@ -1,9 +1,49 @@
-﻿using LateApexEarlySpeed.Json.Schema.Keywords;
+﻿using System.Text.Json;
+using LateApexEarlySpeed.Json.Schema.Common;
+using LateApexEarlySpeed.Json.Schema.Keywords;
 
 namespace LateApexEarlySpeed.Json.Schema;
 
 public class JsonValidatorOptions
 {
+    /// <summary>
+    /// See xml doc of <see cref="GlobalKeywordRegistry"/>
+    /// </summary>
+    private ValidationKeywordRegistry _globalKeywordRegistry = ValidationKeywordRegistry.Global;
+
+    /// <summary>
+    /// It represents the global <see cref="ValidationKeywordRegistry"/> instance.
+    /// The fallback global keyword registry used when the option-level registry <see cref="KeywordRegistry"/> does not contain an implementation for the requested keyword name and dialect.
+    /// Defaults to ValidationKeywordRegistry.Global.
+    /// </summary>
+    /// <remarks>
+    /// In test environment of this library, it can be assigned to be "per instance" rather than global level <see cref="ValidationKeywordRegistry.Global"/>
+    /// so that each test case can have its own separated "global" keyword registry to read and write parallel without affecting other test cases (non-shared state).
+    /// By now, the <see cref="ValidationKeywordRegistry.Global"/> is not thread-safe considering it should be modified during configuration time only.
+    /// </remarks>
+    internal ValidationKeywordRegistry GlobalKeywordRegistry
+    {
+        get => _globalKeywordRegistry;
+        set
+        {
+            _globalKeywordRegistry = value;
+
+            JsonSerializerOptionsCache ??= new JsonSerializerOptionsCache(this);
+        }
+    }
+
+    /// <summary>
+    /// See doc of <see cref="KeywordRegistry"/> for details.
+    /// </summary>
+    internal ValidationKeywordRegistry? InternalKeywordRegistry { get; private set; }
+
+    /// <summary>
+    /// Non-null when this options instance must be carried by schema-deserialization JsonSerializerOptions,
+    /// such as when it has a custom fallback global keyword registry (which is for test purpose) or an option-level keyword registry.
+    /// Caches schema-deserialization <see cref="JsonSerializerOptions"/> instances per dialect for this options instance.
+    /// </summary>
+    internal JsonSerializerOptionsCache? JsonSerializerOptionsCache { get; private set; }
+
     /// <summary>
     /// Gets or sets a value that determines whether a property's name uses a case-insensitive comparison during validation. The default value is false.
     /// </summary>
@@ -22,6 +62,27 @@ public class JsonValidatorOptions
     /// </summary>
     public DialectKind DefaultDialect { get; set; }
 
+    /// <summary>
+    /// Gets the <see cref="ValidationKeywordRegistry"/> instance that registers and retrieves validation keywords.
+    /// </summary>
+    /// <remarks>
+    /// A keyword implementation is resolved per keyword name and dialect. This per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/> takes higher precedence than <see cref="GlobalKeywordRegistry"/>: the global registry is only consulted when this registry has no implementation registered for that specific keyword name and dialect (even if the same keyword name is registered here for other dialects).
+    /// </remarks>
+    public ValidationKeywordRegistry KeywordRegistry
+    {
+        get
+        {
+            if (InternalKeywordRegistry is null)
+            {
+                InternalKeywordRegistry = new ValidationKeywordRegistry(2, false);
+
+                JsonSerializerOptionsCache ??= new JsonSerializerOptionsCache(this);
+            }
+
+            return InternalKeywordRegistry;
+        }
+    }
+
     internal static JsonValidatorOptions Default { get; } = new();
 
     internal bool Equals(JsonValidatorOptions other)
@@ -33,6 +94,35 @@ public class JsonValidatorOptions
 
         return PropertyNameCaseInsensitive == other.PropertyNameCaseInsensitive 
                && IgnoreResourceIdInUnknownKeyword == other.IgnoreResourceIdInUnknownKeyword
-               && DefaultDialect == other.DefaultDialect;
+               && DefaultDialect == other.DefaultDialect
+               && ReferenceEquals(InternalKeywordRegistry, other.InternalKeywordRegistry)
+               && ReferenceEquals(GlobalKeywordRegistry, other.GlobalKeywordRegistry);
+    }
+}
+
+/// <summary>
+/// Caches schema-deserialization <see cref="JsonSerializerOptions"/> instances per dialect
+/// for a single <see cref="JsonValidatorOptions"/> instance.
+/// </summary>
+internal class JsonSerializerOptionsCache
+{
+    /// <summary>
+    /// The validator options that owns this cache.
+    /// </summary>
+    private readonly JsonValidatorOptions _parent;
+
+    private readonly JsonSerializerOptions?[] _jsonSerializerOptionsCache = new JsonSerializerOptions[ValidationKeywordRegistry.SupportedDialectsCount];
+
+    public JsonSerializerOptionsCache(JsonValidatorOptions parent)
+    {
+        _parent = parent;
+    }
+
+    public JsonSerializerOptions GetJsonSerializerOptions(DialectKind dialect)
+    {
+        return _jsonSerializerOptionsCache[(int)dialect] ??= new JsonSerializerOptions
+        {
+            Converters = { new JsonSchemaDeserializerContextMarkerConverter(_parent, dialect) }
+        };
     }
 }

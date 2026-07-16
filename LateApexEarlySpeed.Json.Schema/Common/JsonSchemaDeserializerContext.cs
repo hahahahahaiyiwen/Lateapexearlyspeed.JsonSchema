@@ -26,8 +26,14 @@ internal ref struct JsonSchemaDeserializerContext
     // | DialectKind.Draft7   | true                        | 5           |
     private static readonly JsonSerializerOptions[] JsonSerializerOptionsCache;
 
-    public bool PropertyNameCaseInsensitive;
+    /// <summary>
+    /// The validator options associated with this deserialization context.
+    /// Provides access to property-name comparison settings and keyword resolution.
+    /// </summary>
+    private readonly JsonValidatorOptions _jsonValidatorOptions;
+
     public DialectKind Dialect;
+    public readonly bool PropertyNameCaseInsensitive => _jsonValidatorOptions.PropertyNameCaseInsensitive;
 
     static JsonSchemaDeserializerContext()
     {
@@ -35,15 +41,9 @@ internal ref struct JsonSchemaDeserializerContext
 
         for (int i = 0; i < JsonSerializerOptionsCache.Length; i++)
         {
-            var markerConverter = new JsonSchemaDeserializerContextMarkerConverter(new JsonSchemaDeserializerContext(i % 2 == 1, (DialectKind)(i / 2)));
+            var markerConverter = new JsonSchemaDeserializerContextMarkerConverter(new JsonValidatorOptions { PropertyNameCaseInsensitive = i % 2 == 1 }, (DialectKind)(i / 2));
             JsonSerializerOptionsCache[i] = new JsonSerializerOptions { Converters = { markerConverter } };
         }
-    }
-
-    public JsonSchemaDeserializerContext(bool propertyNameCaseInsensitive, DialectKind dialect)
-    {
-        PropertyNameCaseInsensitive = propertyNameCaseInsensitive;
-        Dialect = dialect;
     }
 
     public JsonSchemaDeserializerContext(JsonSerializerOptions jsonSerializerOptions)
@@ -53,26 +53,40 @@ internal ref struct JsonSchemaDeserializerContext
 
         JsonSchemaDeserializerContextMarkerConverter contextContainerConverter = (JsonSchemaDeserializerContextMarkerConverter)converter;
 
-        PropertyNameCaseInsensitive = contextContainerConverter.PropertyNameCaseInsensitive;
+        _jsonValidatorOptions = contextContainerConverter.Options;
         Dialect = contextContainerConverter.Dialect;
+    }
+
+    public JsonSchemaDeserializerContext(JsonValidatorOptions jsonValidatorOptions, DialectKind dialect)
+    {
+        _jsonValidatorOptions = jsonValidatorOptions;
+        Dialect = dialect;
     }
 
     public readonly JsonSerializerOptions ToJsonSerializerOptions()
     {
-        return JsonSerializerOptionsCache[(int)Dialect * 2 + (PropertyNameCaseInsensitive ? 1 : 0)];
+        return _jsonValidatorOptions.JsonSerializerOptionsCache is null 
+            ? JsonSerializerOptionsCache[(int)Dialect * 2 + (PropertyNameCaseInsensitive ? 1 : 0)] 
+            : _jsonValidatorOptions.JsonSerializerOptionsCache.GetJsonSerializerOptions(Dialect);
+    }
+
+    public Type? GetKeyword(scoped ReadOnlySpan<char> keywordName)
+    {
+        return _jsonValidatorOptions.InternalKeywordRegistry?.GetKeyword(keywordName, Dialect) ?? _jsonValidatorOptions.GlobalKeywordRegistry.GetKeyword(keywordName, Dialect);
     }
 }
 
 internal class JsonSchemaDeserializerContextMarkerConverter : JsonConverter<JsonSchemaDeserializerContextMarkerConverter.Marker>
 {
-    public JsonSchemaDeserializerContextMarkerConverter(JsonSchemaDeserializerContext jsonSchemaDeserializerContext)
-    {
-        PropertyNameCaseInsensitive = jsonSchemaDeserializerContext.PropertyNameCaseInsensitive;
-        Dialect = jsonSchemaDeserializerContext.Dialect;
-    }
+    public JsonValidatorOptions Options { get; }
 
-    public bool PropertyNameCaseInsensitive { get; }
     public DialectKind Dialect { get; }
+
+    public JsonSchemaDeserializerContextMarkerConverter(JsonValidatorOptions jsonValidatorOptions, DialectKind dialect)
+    {
+        Options = jsonValidatorOptions;
+        Dialect = dialect;
+    }
 
     public override Marker Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

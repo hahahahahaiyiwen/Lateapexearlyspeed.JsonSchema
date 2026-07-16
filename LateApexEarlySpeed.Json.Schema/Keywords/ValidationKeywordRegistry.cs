@@ -7,15 +7,21 @@ namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
 internal class StringKeyedDictionary<TValue> where TValue : notnull
 {
-    private const int BucketCount = 100;
+    private readonly int _bucketCount;
 
-    private readonly KeyValuePair<string, TValue>[]?[] _buckets = new KeyValuePair<string, TValue>[BucketCount][];
+    private readonly KeyValuePair<string, TValue>[]?[] _buckets;
+
+    public StringKeyedDictionary(int bucketCount)
+    {
+        _bucketCount = bucketCount;
+        _buckets = new KeyValuePair<string, TValue>[bucketCount][];
+    }
 
     public bool TryGetValue(ReadOnlySpan<char> key, [NotNullWhen(true)] out TValue? value)
     {
         int hashCode = Marvin.GetHashCode(key);
 
-        int bucketIdx = (hashCode & 0x7F_FF_FF_FF) % BucketCount;
+        int bucketIdx = (hashCode & 0x7F_FF_FF_FF) % _bucketCount;
 
         KeyValuePair<string, TValue>[]? bucket = _buckets[bucketIdx];
 
@@ -41,7 +47,7 @@ internal class StringKeyedDictionary<TValue> where TValue : notnull
         {
             int hashCode = Marvin.GetHashCode(key);
 
-            int bucketIdx = (hashCode & 0x7F_FF_FF_FF) % BucketCount;
+            int bucketIdx = (hashCode & 0x7F_FF_FF_FF) % _bucketCount;
 
             KeyValuePair<string, TValue>[]? previousBucket = _buckets[bucketIdx];
 
@@ -153,14 +159,31 @@ internal class StringKeyedHashSet : IEnumerable<string>
     }
 }
 
-public static class ValidationKeywordRegistry
+public class ValidationKeywordRegistry
 {
-    private static readonly StringKeyedDictionary<IDialectKeywordRegistry> KeywordsDictionary = new();
+    private readonly StringKeyedDictionary<IDialectKeywordRegistry> _keywordsDictionary;
 
     private static readonly StringKeyedHashSet IgnoredKeywordNames = new() { "$comment", "$vocabulary", "contentEncoding", "contentMediaType", "contentSchema", "default", "deprecated", "description", "examples", "readOnly", "title", "writeOnly" };
 
-    static ValidationKeywordRegistry()
+    /// <summary>
+    /// Global level <see cref="ValidationKeywordRegistry"/> instance that registers and retrieves validation keywords.
+    /// </summary>
+    /// <remarks>
+    /// A keyword implementation is resolved per keyword name and dialect. This global level <see cref="ValidationKeywordRegistry"/> instance takes lower precedence than the per <see cref="JsonValidatorOptions"/> level <see cref="ValidationKeywordRegistry"/>: it is only consulted when the per-options registry has no implementation registered for that specific keyword name and dialect (even if the same keyword name is registered there for other dialects).
+    /// </remarks>
+    public static ValidationKeywordRegistry Global { get; } = CreateDefaultRegistry();
+
+    internal static ValidationKeywordRegistry CreateDefaultRegistry() => new(100, true);
+
+    internal ValidationKeywordRegistry(int capacity, bool withBuiltInKeywords)
     {
+        _keywordsDictionary = new(capacity);
+
+        if (!withBuiltInKeywords)
+        {
+            return;
+        }
+
         var builtInKeywordTypes = new[] 
             { 
                 typeof(AdditionalItemsKeyword),
@@ -209,20 +232,20 @@ public static class ValidationKeywordRegistry
     /// </summary>
     /// <typeparam name="TKeyword">New keyword type to be added</typeparam>
     /// <exception cref="ArgumentException">A keyword type with the same keyword name and dialect already exists in the <see cref="ValidationKeywordRegistry"/></exception>
-    public static void AddKeyword<TKeyword>() where TKeyword : KeywordBase
+    public void AddKeyword<TKeyword>() where TKeyword : KeywordBase
     {
         AddKeyword(typeof(TKeyword));
     }
 
-    private static void AddKeyword(Type keywordType)
+    private void AddKeyword(Type keywordType)
     {
         ReadOnlySpan<char> keywordName = KeywordBase.GetKeywordName(keywordType);
         DialectKind[] dialects = KeywordBase.GetKeywordDialects(keywordType);
 
         DialectKeywordRegistry dialectKeywordRegistry;
-        if (KeywordsDictionary.TryGetValue(keywordName, out IDialectKeywordRegistry? dialectKeywords))
+        if (_keywordsDictionary.TryGetValue(keywordName, out IDialectKeywordRegistry? dialectKeywords))
         {
-            if (dialectKeywords is GlobalDialectKeywordRegistry)
+            if (dialectKeywords is AllDialectsKeywordRegistry)
             {
                 throw new ArgumentException($"A keyword type with the same keyword name and dialect has already been added. Keyword type: {keywordType}", nameof(keywordType));
             }
@@ -233,12 +256,12 @@ public static class ValidationKeywordRegistry
         {
             if (dialects.Length == SupportedDialectsCount) // current keyword supports all dialects
             {
-                KeywordsDictionary[keywordName] = new GlobalDialectKeywordRegistry(keywordType);
+                _keywordsDictionary[keywordName] = new AllDialectsKeywordRegistry(keywordType);
                 return;
             }
 
             dialectKeywordRegistry = new DialectKeywordRegistry();
-            KeywordsDictionary[keywordName] = dialectKeywordRegistry;
+            _keywordsDictionary[keywordName] = dialectKeywordRegistry;
         }
 
         foreach (DialectKind dialect in dialects)
@@ -252,7 +275,7 @@ public static class ValidationKeywordRegistry
     /// If specified keyword name and dialect does not exist, it is added; otherwise it is updated with new keyword type.
     /// </summary>
     /// <typeparam name="TKeyword">New keyword type to be set</typeparam>
-    public static void SetKeyword<TKeyword>() where TKeyword : KeywordBase
+    public void SetKeyword<TKeyword>() where TKeyword : KeywordBase
     {
         Type keywordType = typeof(TKeyword);
         
@@ -261,17 +284,17 @@ public static class ValidationKeywordRegistry
 
         if (dialects.Length == SupportedDialectsCount) // current keyword supports all dialects
         {
-            KeywordsDictionary[keywordName] = new GlobalDialectKeywordRegistry(keywordType);
+            _keywordsDictionary[keywordName] = new AllDialectsKeywordRegistry(keywordType);
             return;
         }
 
         DialectKeywordRegistry dialectKeywordRegistry;
-        if (KeywordsDictionary.TryGetValue(keywordName, out IDialectKeywordRegistry? dialectKeywords))
+        if (_keywordsDictionary.TryGetValue(keywordName, out IDialectKeywordRegistry? dialectKeywords))
         {
-            if (dialectKeywords is GlobalDialectKeywordRegistry globalDialectKeywordRegistry)
+            if (dialectKeywords is AllDialectsKeywordRegistry globalDialectKeywordRegistry)
             {
                 dialectKeywordRegistry = globalDialectKeywordRegistry.ToDialectKeywordRegistry();
-                KeywordsDictionary[keywordName] = dialectKeywordRegistry;
+                _keywordsDictionary[keywordName] = dialectKeywordRegistry;
             }
             else
             {
@@ -281,7 +304,7 @@ public static class ValidationKeywordRegistry
         else
         {
             dialectKeywordRegistry = new DialectKeywordRegistry();
-            KeywordsDictionary[keywordName] = dialectKeywordRegistry;
+            _keywordsDictionary[keywordName] = dialectKeywordRegistry;
         }
 
         foreach (DialectKind dialect in dialects)
@@ -292,9 +315,9 @@ public static class ValidationKeywordRegistry
 
     internal static int SupportedDialectsCount => Enum.GetNames(typeof(DialectKind)).Length;
 
-    public static Type? GetKeyword(ReadOnlySpan<char> keywordName, DialectKind dialectKind)
+    public Type? GetKeyword(ReadOnlySpan<char> keywordName, DialectKind dialectKind)
     {
-        return KeywordsDictionary.GetValueOrDefault(keywordName)?[dialectKind];
+        return _keywordsDictionary.GetValueOrDefault(keywordName)?[dialectKind];
     }
 
     internal static bool IsIgnoredKeyword(ReadOnlySpan<char> keywordName)
@@ -329,11 +352,11 @@ public static class ValidationKeywordRegistry
         }
     }
 
-    private class GlobalDialectKeywordRegistry : IDialectKeywordRegistry
+    private class AllDialectsKeywordRegistry : IDialectKeywordRegistry
     {
         private readonly Type _keywordType;
 
-        public GlobalDialectKeywordRegistry(Type keywordType)
+        public AllDialectsKeywordRegistry(Type keywordType)
         {
             _keywordType = keywordType;
         }

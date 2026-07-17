@@ -101,4 +101,21 @@ internal static class Utf8JsonReaderExtensions
         unsignedLongValue = null;
         decimalValue = null;
     }
+
+    /// <summary>
+    /// Skips the current JSON value using <see cref="Utf8JsonReader.TrySkip"/> so converter code can tolerate
+    /// readers whose <see cref="Utf8JsonReader.IsFinalBlock"/> is <see langword="false"/>.
+    /// see: https://stackoverflow.com/questions/63038334/how-do-i-handle-partial-json-in-a-jsonconverter-while-using-deserializeasync-on
+    /// </summary>
+    /// <param name="reader">The reader positioned on the JSON value to skip.</param>
+    /// <exception cref="JsonException">
+    /// Thrown when the current value cannot be skipped because the reader does not contain enough data.
+    /// </exception>
+    public static void HandleFinalBlockAndSkip(this ref Utf8JsonReader reader)
+    {
+        if (!reader.TrySkip())
+        {
+            throw new JsonException("there was not enough data for the children to be skipped.");
+        }
+    }
 }

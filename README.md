@@ -55,6 +55,10 @@ nuget packages:
 </tbody>
 </table>
 
+## Articles on Medium
+
+For feature announcements, examples, and performance notes, see [all articles by Lateapexearlyspeed on Medium](https://medium.com/@lateapexearlyspeed).
+
 ## Lateapexearlyspeed.Json.Schema
 
 This is a high performance Json schema .Net implementation library based on [Json schema](https://json-schema.org/), support draft7, draft2019 and draft2020 (most commonly used, stable, LTS and latest versions). The json validation functionalities have passed [official json schema test-suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for draft7, draft2019 and draft2020 (except cases about limitation listed below)

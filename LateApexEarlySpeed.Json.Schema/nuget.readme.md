@@ -374,8 +374,21 @@ public class TestCustomFormatValidator : FormatValidator
 }
 
 // register it globally
-FormatRegistry.AddFormatType<TestCustomFormatValidator>();
+FormatRegistry.Global.AddFormatType<TestCustomFormatValidator>();
 ```
+
+### Per-`JsonValidatorOptions` custom format
+
+Besides registering custom formats in the process-wide `FormatRegistry.Global`, you can also register them on a specific `JsonValidatorOptions` instance through its `FormatRegistry`. Custom formats registered this way are isolated to the `JsonValidator` instances created with that options instance, so different schemas can have their own independent custom formats:
+
+```csharp
+var options = new JsonValidatorOptions();
+options.FormatRegistry.AddFormatType<TestCustomFormatValidator>();
+
+var validator = new JsonValidator(schema, options);
+```
+
+A format validator implementation is resolved per format name. The per-`JsonValidatorOptions` level `FormatRegistry` takes higher precedence than `FormatRegistry.Global`: the global registry is only consulted when the per-options registry has no implementation registered for that specific format name.
 
 ### Other extension usage doc is to be continued .
 

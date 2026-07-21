@@ -74,6 +74,21 @@ internal ref struct JsonSchemaDeserializerContext
     {
         return _jsonValidatorOptions.InternalKeywordRegistry?.GetKeyword(keywordName, Dialect) ?? _jsonValidatorOptions.GlobalKeywordRegistry.GetKeyword(keywordName, Dialect);
     }
+
+    public FormatValidator? GetFormatValidator(string formatName)
+    {
+        Type? formatType = _jsonValidatorOptions.InternalFormatRegistry?.GetFormatType(formatName) ?? _jsonValidatorOptions.GlobalFormatRegistry.GetFormatType(formatName);
+
+        if (formatType is null)
+        {
+            return null;
+        }
+
+        object instance = Activator.CreateInstance(formatType);
+
+        Debug.Assert(instance is FormatValidator);
+        return instance as FormatValidator;
+    }
 }
 
 internal class JsonSchemaDeserializerContextMarkerConverter : JsonConverter<JsonSchemaDeserializerContextMarkerConverter.Marker>

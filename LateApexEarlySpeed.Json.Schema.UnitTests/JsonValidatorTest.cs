@@ -254,7 +254,7 @@ namespace LateApexEarlySpeed.Json.Schema.UnitTests
         public void Validate_CustomFormatKeyword(DialectKind dialect, string schema, string instance, OutputFormat outputFormat, bool ignoreResourceIdFromUnknownKeyword, bool expectedValidationResult, string testCaseDescription, string testDescription)
         {
             // 'custom_format' should have been registered during 'JsonValidatorTestFixture'
-            Assert.NotNull(FormatRegistry.GetFormatType("custom_format"));
+            Assert.NotNull(FormatRegistry.Global.GetFormatType("custom_format"));
 
             var jsonValidator = new JsonValidator(schema, new JsonValidatorOptions { DefaultDialect = dialect, IgnoreResourceIdInUnknownKeyword = ignoreResourceIdFromUnknownKeyword });
             Assert.Equal(expectedValidationResult, jsonValidator.Validate(instance, new JsonSchemaOptions{ OutputFormat = outputFormat }).IsValid);

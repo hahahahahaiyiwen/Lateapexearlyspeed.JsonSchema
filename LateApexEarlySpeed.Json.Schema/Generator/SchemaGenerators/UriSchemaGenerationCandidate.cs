@@ -14,7 +14,7 @@ internal class UriSchemaGenerationCandidate : ISchemaGenerationCandidate
     public BodyJsonSchema Generate(IType typeToConvert, IEnumerable<KeywordBase> keywordsFromProperty, JsonSchemaGeneratorOptions options)
     {
         var typeKeyword = new TypeKeyword(InstanceType.String, InstanceType.Null);
-        var formatKeyword = new FormatKeyword(UriReferenceFormatValidator.FormatName);
+        var formatKeyword = new FormatKeyword(UriReferenceFormatValidator.FormatName, new UriReferenceFormatValidator());
 
         return new BodyJsonSchema(keywordsFromProperty.Append(typeKeyword).Append(formatKeyword));
     }

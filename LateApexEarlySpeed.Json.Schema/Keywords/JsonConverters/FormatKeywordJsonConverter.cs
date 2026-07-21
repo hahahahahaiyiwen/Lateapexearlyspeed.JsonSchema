@@ -13,7 +13,9 @@ public class FormatKeywordJsonConverter : JsonConverter<FormatKeyword>
             throw ThrowHelper.CreateKeywordHasInvalidJsonValueKindJsonException<FormatKeyword>(JsonValueKind.String);
         }
 
-        return new FormatKeyword(reader.GetString()!);
+        string format = reader.GetString()!;
+        var deserializerContext = new JsonSchemaDeserializerContext(options);
+        return new FormatKeyword(format, deserializerContext.GetFormatValidator(format));
     }
 
     public override void Write(Utf8JsonWriter writer, FormatKeyword value, JsonSerializerOptions options)

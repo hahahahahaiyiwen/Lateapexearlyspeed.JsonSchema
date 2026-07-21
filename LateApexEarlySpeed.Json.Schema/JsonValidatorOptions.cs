@@ -12,6 +12,11 @@ public class JsonValidatorOptions
     private ValidationKeywordRegistry _globalKeywordRegistry = ValidationKeywordRegistry.Global;
 
     /// <summary>
+    /// See xml doc of <see cref="GlobalFormatRegistry"/>
+    /// </summary>
+    private FormatRegistry _globalFormatRegistry = FormatRegistry.Global;
+
+    /// <summary>
     /// It represents the global <see cref="ValidationKeywordRegistry"/> instance.
     /// The fallback global keyword registry used when the option-level registry <see cref="KeywordRegistry"/> does not contain an implementation for the requested keyword name and dialect.
     /// Defaults to ValidationKeywordRegistry.Global.
@@ -33,9 +38,35 @@ public class JsonValidatorOptions
     }
 
     /// <summary>
+    /// It represents the global <see cref="FormatRegistry"/> instance.
+    /// The fallback global format registry used when the option-level registry <see cref="FormatRegistry"/> does not contain an implementation for the requested format name.
+    /// Defaults to FormatRegistry.Global.
+    /// </summary>
+    /// <remarks>
+    /// In test environment of this library, it can be assigned to be "per instance" rather than global level <see cref="FormatRegistry.Global"/>
+    /// so that each test case can have its own separated "global" format registry to read and write parallel without affecting other test cases (non-shared state).
+    /// By now, the <see cref="FormatRegistry.Global"/> is not thread-safe considering it should be modified during configuration time only.
+    /// </remarks>
+    internal FormatRegistry GlobalFormatRegistry
+    {
+        get => _globalFormatRegistry;
+        set
+        {
+            _globalFormatRegistry = value;
+
+            JsonSerializerOptionsCache ??= new JsonSerializerOptionsCache(this);
+        }
+    }
+
+    /// <summary>
     /// See doc of <see cref="KeywordRegistry"/> for details.
     /// </summary>
     internal ValidationKeywordRegistry? InternalKeywordRegistry { get; private set; }
+
+    /// <summary>
+    /// See doc of <see cref="FormatRegistry"/> property for details.
+    /// </summary>
+    internal FormatRegistry? InternalFormatRegistry { get; private set; }
 
     /// <summary>
     /// Non-null when this options instance must be carried by schema-deserialization JsonSerializerOptions,
@@ -83,6 +114,27 @@ public class JsonValidatorOptions
         }
     }
 
+    /// <summary>
+    /// Gets the <see cref="LateApexEarlySpeed.Json.Schema.Keywords.FormatRegistry"/> instance that registers and retrieves format validators.
+    /// </summary>
+    /// <remarks>
+    /// A format validator implementation is resolved per format name. This per <see cref="JsonValidatorOptions"/> level <see cref="FormatRegistry"/> takes higher precedence than <see cref="GlobalFormatRegistry"/>: the global registry is only consulted when this registry has no implementation registered for that specific format name.
+    /// </remarks>
+    public FormatRegistry FormatRegistry
+    {
+        get
+        {
+            if (InternalFormatRegistry is null)
+            {
+                InternalFormatRegistry = new FormatRegistry(false);
+
+                JsonSerializerOptionsCache ??= new JsonSerializerOptionsCache(this);
+            }
+
+            return InternalFormatRegistry;
+        }
+    }
+
     internal static JsonValidatorOptions Default { get; } = new();
 
     internal bool Equals(JsonValidatorOptions other)
@@ -96,7 +148,9 @@ public class JsonValidatorOptions
                && IgnoreResourceIdInUnknownKeyword == other.IgnoreResourceIdInUnknownKeyword
                && DefaultDialect == other.DefaultDialect
                && ReferenceEquals(InternalKeywordRegistry, other.InternalKeywordRegistry)
-               && ReferenceEquals(GlobalKeywordRegistry, other.GlobalKeywordRegistry);
+               && ReferenceEquals(GlobalKeywordRegistry, other.GlobalKeywordRegistry)
+               && ReferenceEquals(InternalFormatRegistry, other.InternalFormatRegistry)
+               && ReferenceEquals(GlobalFormatRegistry, other.GlobalFormatRegistry);
     }
 }
 

@@ -2,7 +2,6 @@
 
 namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
-[Format(FormatName)]
 internal class EmailFormatValidator : FormatValidator
 {
     public const string FormatName = "email";

@@ -13,13 +13,6 @@ public class JsonValidatorTestFixture
     public JsonValidatorTestFixture()
     {
         ExternalSchemaDocuments = PrepareRefRemoteDocuments();
-
-        FormatRegistry.Global.AddFormatType<TrueToFalseFormatValidator>();
-        
-        // Test to add duplicated format names
-        FormatRegistry.Global.SetFormatType<TrueToTrueFormatValidator>();
-        Assert.Throws<ArgumentException>(FormatRegistry.Global.AddFormatType<TrueToFalseFormatValidator>);
-        Assert.Throws<ArgumentException>(FormatRegistry.Global.AddFormatType<DateTimeFormatValidator>);
     }
 
     public IEnumerable<string> ExternalSchemaDocuments { get; }

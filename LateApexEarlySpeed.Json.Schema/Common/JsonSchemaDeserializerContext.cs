@@ -77,17 +77,7 @@ internal ref struct JsonSchemaDeserializerContext
 
     public FormatValidator? GetFormatValidator(string formatName)
     {
-        Type? formatType = _jsonValidatorOptions.InternalFormatRegistry?.GetFormatType(formatName) ?? _jsonValidatorOptions.GlobalFormatRegistry.GetFormatType(formatName);
-
-        if (formatType is null)
-        {
-            return null;
-        }
-
-        object instance = Activator.CreateInstance(formatType);
-
-        Debug.Assert(instance is FormatValidator);
-        return instance as FormatValidator;
+        return _jsonValidatorOptions.InternalFormatRegistry?.GetFormatValidator(formatName) ?? _jsonValidatorOptions.GlobalFormatRegistry.GetFormatValidator(formatName);
     }
 }
 

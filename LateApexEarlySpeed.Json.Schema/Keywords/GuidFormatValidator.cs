@@ -1,6 +1,5 @@
 ﻿namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
-[Format(FormatName)]
 internal class GuidFormatValidator : FormatValidator
 {
     public const string FormatName = "uuid";

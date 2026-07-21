@@ -361,10 +361,9 @@ This library supports following formats currently:
 - json-pointer
 - regex
 
-If require more format, implement an custom FormatValidator, and register it:
+If require more format, implement a custom FormatValidator, and register it:
 
 ```csharp
-[Format("custom_format")] // this is your custom format name in json schema
 public class TestCustomFormatValidator : FormatValidator
 {
     public override bool Validate(string content)
@@ -374,7 +373,7 @@ public class TestCustomFormatValidator : FormatValidator
 }
 
 // register it globally
-FormatRegistry.Global.AddFormatType<TestCustomFormatValidator>();
+FormatRegistry.Global.AddFormat("custom_format", () => new TestCustomFormatValidator());
 ```
 
 ### Per-`JsonValidatorOptions` custom format
@@ -383,7 +382,7 @@ Besides registering custom formats in the process-wide `FormatRegistry.Global`, 
 
 ```csharp
 var options = new JsonValidatorOptions();
-options.FormatRegistry.AddFormatType<TestCustomFormatValidator>();
+options.FormatRegistry.AddFormat("custom_format", () => new TestCustomFormatValidator());
 
 var validator = new JsonValidator(schema, options);
 ```

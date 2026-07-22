@@ -1,6 +1,5 @@
 ﻿namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
-[Format(FormatName)]
 // ReSharper disable once InconsistentNaming
 internal class IPv4FormatValidator : FormatValidator
 {

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using LateApexEarlySpeed.Json.Schema.Common;
 
 namespace LateApexEarlySpeed.Json.Schema.Keywords.JsonConverters;
 
@@ -7,7 +8,7 @@ internal class SchemaRecursiveReferenceKeywordJsonConverter : JsonConverter<Sche
 {
     public override SchemaRecursiveReferenceKeyword Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        reader.Skip();
+        reader.HandleFinalBlockAndSkip();
         return new SchemaRecursiveReferenceKeyword();
     }
 

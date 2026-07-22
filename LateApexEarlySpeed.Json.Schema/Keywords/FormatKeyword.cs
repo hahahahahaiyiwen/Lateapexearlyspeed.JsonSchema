@@ -10,14 +10,17 @@ namespace LateApexEarlySpeed.Json.Schema.Keywords;
 [JsonConverter(typeof(FormatKeywordJsonConverter))]
 public class FormatKeyword : KeywordBase
 {
+    /// <summary>
+    /// The original format value from the JSON schema. It may be invalid (or unsupported) format value and can be used to serialize back to JSON schema.
+    /// </summary>
     public string Format { get; }
 
     private readonly FormatValidator? _formatValidator;
 
-    public FormatKeyword(string format)
+    public FormatKeyword(string format, FormatValidator? formatValidator)
     {
         Format = format;
-        _formatValidator = FormatValidator.Create(format);
+        _formatValidator = formatValidator;
     }
 
     protected internal override ValidationResult ValidateCore(JsonInstanceElement instance, JsonSchemaOptions options)

@@ -155,7 +155,7 @@ public class TwoIsValidKeywordJsonConverter : JsonConverter<TwoIsValidKeyword>
 {
     public override TwoIsValidKeyword Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        reader.Skip();
+        reader.HandleFinalBlockAndSkip();
         return new TwoIsValidKeyword();
     }
 
@@ -186,7 +186,7 @@ public class TwoIsInvalidKeywordJsonConverter : JsonConverter<TwoIsInvalidKeywor
 {
     public override TwoIsInvalidKeyword Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        reader.Skip();
+        reader.HandleFinalBlockAndSkip();
         return new TwoIsInvalidKeyword();
     }
 
@@ -217,7 +217,7 @@ public class OneIsValidKeywordJsonConverter : JsonConverter<OneIsValidKeyword>
 {
     public override OneIsValidKeyword Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        reader.Skip();
+        reader.HandleFinalBlockAndSkip();
         return new OneIsValidKeyword();
     }
 

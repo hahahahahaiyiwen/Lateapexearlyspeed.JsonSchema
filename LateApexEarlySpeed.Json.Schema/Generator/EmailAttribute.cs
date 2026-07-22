@@ -7,6 +7,6 @@ public class EmailAttribute : Attribute, IKeywordGenerator
 {
     public KeywordBase CreateKeyword(Type type)
     {
-        return new FormatKeyword(EmailFormatValidator.FormatName);
+        return new FormatKeyword(EmailFormatValidator.FormatName, new EmailFormatValidator());
     }
 }

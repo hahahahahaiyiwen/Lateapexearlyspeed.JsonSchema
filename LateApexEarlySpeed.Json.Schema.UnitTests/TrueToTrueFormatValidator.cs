@@ -2,7 +2,6 @@ using LateApexEarlySpeed.Json.Schema.Keywords;
 
 namespace LateApexEarlySpeed.Json.Schema.UnitTests;
 
-[Format("custom_format")]
 public class TrueToTrueFormatValidator : FormatValidator
 {
     public override bool Validate(string content)
@@ -19,7 +18,6 @@ public class TrueToTrueFormatValidator : FormatValidator
     }
 }
 
-[Format("custom_format")]
 public class TrueToFalseFormatValidator : FormatValidator
 {
     public override bool Validate(string content)

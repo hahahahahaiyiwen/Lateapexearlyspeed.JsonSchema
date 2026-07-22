@@ -3,9 +3,10 @@ using LateApexEarlySpeed.Json.Schema.Common;
 
 namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
-[Format("regex")]
 internal class RegexFormatValidator : FormatValidator
 {
+    public const string FormatName = "regex";
+
     public override bool Validate(string content)
     {
         try

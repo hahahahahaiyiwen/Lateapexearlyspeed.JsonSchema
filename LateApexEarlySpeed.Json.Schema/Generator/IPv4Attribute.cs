@@ -8,6 +8,6 @@ public class IPv4Attribute : Attribute, IKeywordGenerator
 {
     public KeywordBase CreateKeyword(Type type)
     {
-        return new FormatKeyword(IPv4FormatValidator.FormatName);
+        return new FormatKeyword(IPv4FormatValidator.FormatName, new IPv4FormatValidator());
     }
 }

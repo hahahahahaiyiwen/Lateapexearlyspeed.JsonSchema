@@ -14,7 +14,7 @@ internal class GuidSchemaGenerationCandidate : ISchemaGenerationCandidate
     public BodyJsonSchema Generate(IType typeToConvert, IEnumerable<KeywordBase> keywordsFromProperty, JsonSchemaGeneratorOptions options)
     {
         var typeKeyword = new TypeKeyword(InstanceType.String);
-        var formatKeyword = new FormatKeyword(GuidFormatValidator.FormatName);
+        var formatKeyword = new FormatKeyword(GuidFormatValidator.FormatName, new GuidFormatValidator());
 
         return new BodyJsonSchema(keywordsFromProperty.Append(typeKeyword).Append(formatKeyword));
     }

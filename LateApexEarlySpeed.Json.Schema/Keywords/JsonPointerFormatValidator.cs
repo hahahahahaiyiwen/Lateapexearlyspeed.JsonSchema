@@ -2,9 +2,10 @@
 
 namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
-[Format("json-pointer")]
 internal class JsonPointerFormatValidator : FormatValidator
 {
+    public const string FormatName = "json-pointer";
+
     public override bool Validate(string content)
     {
         return LinkedListBasedImmutableJsonPointer.Create(content) is not null;

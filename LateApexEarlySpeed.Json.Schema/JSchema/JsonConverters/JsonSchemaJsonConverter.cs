@@ -199,7 +199,7 @@ internal class JsonSchemaJsonConverter<T> : JsonConverter<T>
 
                 if (defsKeywords.Any(defs => defs.name == defKeywordName))
                 {
-                    reader.Skip();
+                    reader.HandleFinalBlockAndSkip();
                 }
                 else
                 {
@@ -240,7 +240,7 @@ internal class JsonSchemaJsonConverter<T> : JsonConverter<T>
             }
             else if (ValidationKeywordRegistry.IsIgnoredKeyword(keywordName))
             {
-                reader.Skip();
+                reader.HandleFinalBlockAndSkip();
             }
             else if (PotentialSchemaContainerElement.TryDeserialize(ref reader, out ISchemaContainerElement? potentialSchemaContainerElement, options))
             {

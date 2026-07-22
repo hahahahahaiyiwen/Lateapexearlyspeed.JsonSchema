@@ -253,11 +253,14 @@ namespace LateApexEarlySpeed.Json.Schema.UnitTests
         [MemberData(nameof(JsonSchemaTestCasesForCustomFormat))]
         public void Validate_CustomFormatKeyword(DialectKind dialect, string schema, string instance, OutputFormat outputFormat, bool ignoreResourceIdFromUnknownKeyword, bool expectedValidationResult, string testCaseDescription, string testDescription)
         {
-            // 'custom_format' should have been registered during 'JsonValidatorTestFixture'
-            Assert.NotNull(FormatRegistry.GetFormatType("custom_format"));
+            FormatRegistry globalFormatRegistry = FormatRegistry.CreateDefaultRegistry();
+            globalFormatRegistry.AddFormat("custom_format", () => new TrueToTrueFormatValidator());
 
-            var jsonValidator = new JsonValidator(schema, new JsonValidatorOptions { DefaultDialect = dialect, IgnoreResourceIdInUnknownKeyword = ignoreResourceIdFromUnknownKeyword });
-            Assert.Equal(expectedValidationResult, jsonValidator.Validate(instance, new JsonSchemaOptions{ OutputFormat = outputFormat }).IsValid);
+            var option = new JsonValidatorOptions { GlobalFormatRegistry = globalFormatRegistry, DefaultDialect = dialect, IgnoreResourceIdInUnknownKeyword = ignoreResourceIdFromUnknownKeyword };
+            Assert.NotNull(option.GlobalFormatRegistry.GetFormatValidator("custom_format"));
+
+            var jsonValidator = new JsonValidator(schema, option);
+            Assert.Equal(expectedValidationResult, jsonValidator.Validate(instance, new JsonSchemaOptions { OutputFormat = outputFormat }).IsValid);
         }
 
         /// <summary>

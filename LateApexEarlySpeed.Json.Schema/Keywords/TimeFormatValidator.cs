@@ -2,9 +2,10 @@
 
 namespace LateApexEarlySpeed.Json.Schema.Keywords;
 
-[Format("time")]
 internal class TimeFormatValidator : FormatValidator
 {
+    public const string FormatName = "time";
+
     private static readonly string[] Formats = new[]
     {
         "HH:mm:ss.FFFFFFFzzz",

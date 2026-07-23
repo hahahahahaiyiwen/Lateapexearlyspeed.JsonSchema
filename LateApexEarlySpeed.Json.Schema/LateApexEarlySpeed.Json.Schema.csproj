@@ -9,12 +9,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Title>Simple and high performance Json Schema implementation for .Net; also provide convenient classes for validation like: fluent json validation and schema creation from type </Title>
+    <Title>High-performance .NET JSON Schema validator implementation based on System.Text.Json, with fluent validation and schema creation from .NET types</Title>
     <Authors>Lateapexearlyspeed</Authors>
-    <Description>Simple and high performance Json Schema implementation for .Net; also provide convenient classes for validation like: fluent json validation and schema creation from type </Description>
+    <Description>High-performance .NET JSON Schema validator implementation based on System.Text.Json. Supports Draft 7, Draft 2019-09, and Draft 2020-12; passes the official JSON Schema Test Suite with documented limitations. Includes fluent JSON validation and validator/schema creation from .NET types.</Description>
     <PackageReadmeFile>nuget.readme.md</PackageReadmeFile>
     <PackageIcon>nuget.icon.jpg</PackageIcon>
-    <PackageTags>Json;Schema;Json schema;JsonSchema;Validation;Fluent Validation;SchemaValidatorGeneration;Generation</PackageTags>
+    <PackageTags>Json;Schema;Json schema;JsonSchema;JsonSchemaValidator;JSON Schema validator;Validation;System.Text.Json;DotNet;CSharp;Draft202012;Draft201909;Draft7;BenchmarkDotNet;Fluent Validation;SchemaValidatorGeneration;Generation</PackageTags>
     <PackageOutputPath>bin\Release\NugetPackage</PackageOutputPath>
     <Version>4.0.0</Version>
     <AssemblyVersion>4.0.0</AssemblyVersion>

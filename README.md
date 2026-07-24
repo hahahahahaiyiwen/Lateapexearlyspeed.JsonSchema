@@ -16,6 +16,8 @@
 ![NuGet Version](https://img.shields.io/nuget/v/LateApexEarlySpeed.Nullability.Generic?label=LateApexEarlySpeed.Nullability.Generic)
 ![NuGet Version](https://img.shields.io/nuget/v/JsonQuery.Net?label=JsonQuery.Net)
 
+LateApexEarlySpeed.Json.Schema is a high-performance .NET JSON Schema validator implementation based on System.Text.Json. The core package supports Draft 7, Draft 2019-09, and Draft 2020-12, passes the official JSON Schema Test Suite with documented limitations, and includes fluent JSON validation plus validator/schema creation from .NET types.
+
 # What is all in Lateapexearlyspeed.JsonSchema
 
 This repository is about json validation, the wish is to help develop json related validation easily. 
@@ -61,11 +63,31 @@ For feature announcements, examples, and performance notes, see [all articles by
 
 ## Lateapexearlyspeed.Json.Schema
 
-This is a high performance Json schema .Net implementation library based on [Json schema](https://json-schema.org/), support draft7, draft2019 and draft2020 (most commonly used, stable, LTS and latest versions). The json validation functionalities have passed [official json schema test-suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) for draft7, draft2019 and draft2020 (except cases about limitation listed below)
+This is a high-performance .NET JSON Schema validator implementation based on System.Text.Json and the [JSON Schema](https://json-schema.org/) specification. It supports Draft 7, Draft 2019-09, and Draft 2020-12, and its validation functionality passes the [official JSON Schema Test Suite](https://github.com/json-schema-org/JSON-Schema-Test-Suite) with the documented limitations listed in the Compliance section below.
 
-This library also supports fluent validation and validator generation from your class code.
+The library also supports fluent JSON validation and validator/schema creation from .NET types.
 
 **High performance** - this .Net library has good performance compared with existing more popular and excellent .Net implementations in common cases by BenchmarkDotnet [result](https://github.com/lateapexearlyspeed/Lateapexearlyspeed.JsonSchema/wiki/Performance). **Update**: there is a [blog article](https://medium.com/@lateapexearlyspeed/performance-comparison-of-json-schema-implementations-for-net-ead3d092a473) to demonstrate performance advantage of this library comparing with other existing popular implementations based on official Json Schema test suite.
+
+### When to choose this library
+
+Choose this library when:
+
+- You need high-performance runtime JSON Schema validation in .NET.
+- You want a validator implementation based on System.Text.Json.
+- You need Draft 7, Draft 2019-09, or Draft 2020-12 support (commonly used, stable, LTS, and latest JSON Schema dialects).
+- You want validation behavior covered by the official JSON Schema Test Suite, with documented limitations.
+- You want fluent JSON validation for developer-friendly validation code.
+- You want validator/schema creation from .NET types.
+- You can reuse JsonValidator instances for better performance in repeated validation scenarios.
+
+### Compliance
+
+- Supported JSON Schema dialects: Draft 7, Draft 2019-09, and Draft 2020-12.
+- Validation functionality is tested against the official JSON Schema Test Suite.
+- The test suite is included as a repository submodule and is run through the unit test project.
+- Format validation is supported for common formats including uri, uri-reference, date, time, date-time, email, uuid, hostname, ipv4, ipv6, json-pointer, and regex.
+- Current documented limitations: annotation collection is not supported; therefore unevaluatedProperties and unevaluatedItems are not supported; content-encoded string validation is not supported currently.
 
 ### Basic Usage
 

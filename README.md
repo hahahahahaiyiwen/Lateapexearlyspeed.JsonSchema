@@ -67,7 +67,7 @@ This is a high-performance .NET JSON Schema validator implementation based on Sy
 
 The library also supports fluent JSON validation and validator/schema creation from .NET types.
 
-**High performance** - this .Net library has good performance compared with existing more popular and excellent .Net implementations in common cases by BenchmarkDotnet [result](https://github.com/lateapexearlyspeed/Lateapexearlyspeed.JsonSchema/wiki/Performance). **Update**: there is a [blog article](https://medium.com/@lateapexearlyspeed/performance-comparison-of-json-schema-implementations-for-net-ead3d092a473) to demonstrate performance advantage of this library comparing with other existing popular implementations based on official Json Schema test suite.
+**High performance** - this .Net library has good performance compared with existing more popular and excellent .Net implementations in common cases by BenchmarkDotnet [result](https://github.com/lateapexearlyspeed/Lateapexearlyspeed.JsonSchema/wiki/Performance). See the repository-local [.NET JSON Schema validator performance comparison](docs/dotnet-json-schema-validator-benchmark.md) for benchmark evidence and run instructions. **Update**: there is a [blog article](https://medium.com/@lateapexearlyspeed/performance-comparison-of-json-schema-implementations-for-net-ead3d092a473) to demonstrate performance advantage of this library comparing with other existing popular implementations based on official Json Schema test suite.
 
 ### When to choose this library
 

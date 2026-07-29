@@ -734,7 +734,7 @@ public readonly struct JsonInstanceElement : IEquatable<JsonInstanceElement>
 
     public bool Equals(JsonInstanceElement other)
     {
-        return Equivalent(other, JsonCollectionEqualityComparer.Equality, StringComparison.Ordinal).Result;
+        return Equivalent(other, JsonCollectionEqualityComparer.Equality, StringComparison.Ordinal, ComparisonDetail.ResultOnly).Result;
     }
 
     public override bool Equals(object? obj)
